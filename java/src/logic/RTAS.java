@@ -24,9 +24,16 @@ public class RTAS {
 	 */
 	public class DeadlineDensitySnippet
 	{		
-		private int nOptions;
-		private double totalExecutionTime;
-		private double maxThreadExecutionTime;
+		/**Just need a maxThreadExecutionTime and a totalExecutionTime in order to define a
+		 * DeadlineDensitySnippet. We therefore can use this data structure to define the additions
+		 * of different snippets that is done when adding sideways (nodes in the same sequence)
+		 * and vertically (sequences before joining to a node). Keep in mind vertical addition
+		 * is done such that the deadline is the same and the density is summed for a given
+		 * deadline. **/
+		
+		private int nOptions; // parallelization option
+		private double totalExecutionTime; //total execution time, added exeTimes of all threads together
+		private double maxThreadExecutionTime; //largest exeTime amoung all the threads
 
 		/**
 		 * @param nOptions the number of parallelization options
@@ -42,6 +49,7 @@ public class RTAS {
 		
 		/**
 		 * @return possible maximum density of snippet defined as (total execution time / maximum thread execution time) 
+		 * deadline is smallest when it equals the maxThreadExecutionTime
 		 */
 		public double getMaxDensity()
 		{
@@ -84,7 +92,7 @@ public class RTAS {
 		}
 	}
 
-
+/**This is one of the density/deadline graphs for a segment**/
 	public class SegmentSnippets
 	{
 		private ArrayList<DeadlineDensitySnippet> snippets;
@@ -122,6 +130,8 @@ public class RTAS {
 	public class TaskSnippets
 	{
 		private ArrayList<SegmentSnippets> taskSnippets = new ArrayList<SegmentSnippets>();
+		
+		/**Sorted snippets is a combination of all the segment snippets, ordered by greatest density first**/
 		private ArrayList<DeadlineDensitySnippet> sortedSnippets = new ArrayList<DeadlineDensitySnippet>();
 		private ArrayList<DeadlineDensitySnippet> optimalSnippets;
 		private double deadline;
@@ -155,6 +165,8 @@ public class RTAS {
 			findOptimalDensity();
 		}
 		
+		/**Adds the deadlines together of the density/deadline segment graphs...whose points were sorted
+		 * in sorted snippets**/
 		private double getTotalDeadline(double density)
 		{
 			double totalDeadline = 0;
@@ -210,6 +222,18 @@ public class RTAS {
 		public void findOptimalDensity()
 		{
 			optimalDensity = 0;
+			
+			/**We look at sorted snippets. Which is an order on the segment snippets. Each segment snippet
+			 * has a value of density, and snippets are ordered based on how high there density is, so 
+			 * the sorted snippets is an order of the entire pool of densitySnippets that exist in the
+			 * segmentSnipets. The function below, the finds the optimal snippets. These snippets 
+			 * are the snippets in which the optimal density values exist, this is determining by looking
+			 * at each snippet from largest density downward and then looking at that density on each
+			 * segmentSnippet. The deadlines can than be obtained for each segmentSnippet and then
+			 * added together. We do this until the sum exceeds the total task deadline. This function
+			 * then returns the densitySnippet from each segmentSnippet from the previous search in which
+			 * the total sum of deadlines did not exceed task deadlines. The optimal density will be found
+			 * within these segments, which we call the optimal segments **/
 			optimalSnippets = getSnippetsByDeadline(deadline);			
 			
 			if (optimalSnippets == null)
