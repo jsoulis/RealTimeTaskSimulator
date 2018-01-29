@@ -15,9 +15,13 @@ public class DAGTest {
 		this.numVertex = numVertex;
 	}
 	
+	/*This merges the task set into one task apparently, so we can look at peak density appropriately
+	 * assume this is going to happen for ever similiar sequential Segment in our General DAG task model 
+	 * as well*/
 	public double getDensity(int seed, ArrayList<ArrayList<Integer>> nodeinfo)
 	{
-		System.out.println(nodeinfo);
+		// COMMENTED OUT THIS LINE BELOW
+		//System.out.println(nodeinfo);
 		/*********************/
 		Param.NumProcessors = 8;
 		Param.NumThreads_MAX = 8;
@@ -48,9 +52,9 @@ public class DAGTest {
 		
 		Task mergedTask = new Task(nodeinfo.size(), task.getPeriod(), task.getDeadline());
 		
-		for (int i = 0; i < nodeinfo.size(); i++)
+		for (int i = 0; i < nodeinfo.size(); i++) //for each segment
 		{
-			for (int k = 0; k < task.getNumOptions(); k++)
+			for (int k = 0; k < task.getNumOptions(); k++) //for each thread
 			{
 				int maxExecutionTime = 0;
 				for (int l = 0; l < k + 1; l++)
@@ -74,13 +78,16 @@ public class DAGTest {
 		
 //		System.out.println(task);
 //		System.out.println(mergedTask);
-			
-		System.out.println(logic.RTAS.getPeakDensity(mergedTaskSet));		
-		System.out.println(logic.RTAS.getPeakDensity(taskSet));		
+		
+		// COMMENTED OUT
+		//System.out.println(logic.RTAS.getPeakDensity(mergedTaskSet));		
+		//System.out.println(logic.RTAS.getPeakDensity(taskSet));		
 		
 		
 	
 		return logic.RTAS.getPeakDensity(mergedTaskSet);		
+		//return logic.NBG.getPeakDensity(mergedTaskSet, logic.NBG.Type.SINGLE);
+		//return logic.NBG.getPeakDensity(mergedTaskSet, logic.NBG.Type.MAX);
 	}
 	private int numVertex;
 	

@@ -556,7 +556,7 @@ public class Paper{
 
 		for(int i=0; i<seq.size(); ++i)
 		{
-			ArrayList<ArrayList<Integer>> test = trans_dag(seq.get(i));
+			ArrayList<ArrayList<Integer>> test = trans_dag(seq.get(i)); //seq.get(i) :: gets the first serialization in the list of serializations, seq.
 			double d = t.getDensity(seed, test);
 
 			d_list.add(d);
