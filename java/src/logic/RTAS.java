@@ -60,6 +60,7 @@ public class RTAS {
 		 * @param deadline objective deadline
 		 * @return the density of given deadline
 		 */
+		
 		public double getDenstiy(double deadline)
 		{
 			return totalExecutionTime / deadline;

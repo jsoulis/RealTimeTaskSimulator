@@ -16,7 +16,7 @@ public class DAGTest {
 	}
 	
 	/*This merges the task set into one task apparently, so we can look at peak density appropriately
-	 * assume this is going to happen for ever similiar sequential Segment in our General DAG task model 
+	 * assume this is going to happen for every similar sequential Segment in our General DAG task model 
 	 * as well*/
 	public double getDensity(int seed, ArrayList<ArrayList<Integer>> nodeinfo)
 	{

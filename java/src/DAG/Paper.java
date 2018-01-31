@@ -250,7 +250,7 @@ public class Paper{
 		 * of segments is minimal. So we will run tasks on all of the serializations of each topology in which the #segments is 2 in this example,
 		 * a density will be found for each serialization with 2 segements for each topology per task. We will then take the average and report
 		 * that value as the heuristic value for the group of topologies that have a serialization with 2 segments. We will then calculate the 
-		 * optimal value for this group. The optimal value is calculated simliar to the heuristic way, but we run tasks on all serializations, 
+		 * optimal value for this group. The optimal value is calculated similar to the heuristic way, but we run tasks on all serializations, 
 		 * not just the ones with 2 segments, we then average the min densities for each task and report this as opt value. We then find the next
 		 * group, in this example the next group of topologies will be those that have min number of segments of 3. rinse and repeat.
 		 **/
@@ -538,7 +538,7 @@ public class Paper{
 	}
 	
 
-//{{{ Density Test - return max and min and the id of the 'serialization/grouping' of which this occured
+//{{{ Density Test - return max and min and the id of the 'serialization/grouping' of which this occurred
 	public static double[] DensityTest(ArrayList<NodeGroup> seq, int seed)
 	{
 		ArrayList<Double> d_list = new ArrayList<Double>();
@@ -552,7 +552,7 @@ public class Paper{
 		//int seed = ThreadLocalRandom.current().nextInt(1, 100);
 		//int seed = 3;
 
-		DAGTest t = new DAGTest(num_node);
+		DAGTest t = new DAGTest(num_node); 
 
 		for(int i=0; i<seq.size(); ++i)
 		{
