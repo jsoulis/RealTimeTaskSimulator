@@ -264,6 +264,8 @@ public class Paper{
 		double optValAvgTop[] = new double[5];
 		for (int i = 0; i < DAG_RUNS; i++) { //100 topologies
 		//One DAG topology is created - the starting topology is also drawn
+			
+			
 		Node topology = Dag.random_generate2(num_node, num_edge); 
 		//Dag.DrawDag(topology);
 		//System.out.println();
