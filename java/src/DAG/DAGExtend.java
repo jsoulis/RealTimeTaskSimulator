@@ -5,6 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.*;
 
 public class DAGExtend{
 
@@ -32,28 +33,38 @@ public class DAGExtend{
 		
 	}
 	
+	/*This code takes the first node in graph and adds it to a queue.
+	 * While the queue is not empty, it will look at each node in the queue
+	 * and determine if that node has multiple previous or multiple next nodes,
+	 * if it does, it will then add that node to a stack. It will then get the
+	 * list of next nodes from the current node that was in the queue and 
+	 * add all of those nodes to the queue to be explored. By the end of the
+	 * while loop, all nodes should have been examined and all fork and join
+	 * nodes will have been added to stack which is returned to calling function.
+	 * I employed a BFS algorithm for looking at this graph. Refer to wikipedia if confused*/
 	public static Stack<Node> findJoinForks(Node node)
 	{
-		ArrayList<Node> next = node.getNext();
 		Node cur = node;
+		cur.visit = true;
 		Stack<Node> s = new Stack<Node>();
-		if(next.size()==0)
-			return null;
-		while(cur.visit == false)
-		{
-			cur.visit = true;
-			if(cur.getNext().size() > 1 || cur.getPrev().size() > 1)
-			{
-				s.push(cur);
+		Queue<Node> q = new LinkedList<Node>();
+		q.add(cur);
+		while(!q.isEmpty()) {
+			Node t = q.remove();
+			ArrayList<Node> tnext = t.getNext();
+			if(tnext.size() > 1 || t.getPrev().size() > 1) {
+				s.push(t);
+			}
+			for(int i = 0; i < tnext.size(); i++) {
+				Node o = tnext.get(i);
+				if(o.visit != true) {
+					o.visit = true;
+					q.add(o);
+				}
 			}
 		}
-		for (int i = 0; i < next.size(); i++)
-		{
-			/*this structure clearly wont work because stack will be
-			 * created and destroyed over and over */
-
-			//findJoinForks(next.get(i));
-		}
+		
+		return s;
 		
 	}
 	
