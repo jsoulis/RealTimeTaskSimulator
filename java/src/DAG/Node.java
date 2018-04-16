@@ -13,6 +13,7 @@ public class Node {
 	// for utility
 	public int depth;
 	public boolean visit;
+	public boolean accounted;
 
 	public Node(int idnum) {
 		id = idnum;
@@ -21,6 +22,7 @@ public class Node {
 		this.next = new ArrayList<Node>();
 		this.depth = 0;
 		this.visit = false;
+		this.accounted = false;
 	}
 
 	public int getId() {return id;}
@@ -37,3 +39,4 @@ public class Node {
 		this.prev.add(node);
 	}
 }
+
