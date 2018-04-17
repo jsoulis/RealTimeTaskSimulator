@@ -606,7 +606,7 @@ public class Dag{
 	public static void DrawNodeGroup(NodeGroup node)
 	{
 		int count = 0;
-		while(node!=null)
+		while(node!=null) 
 		{
 			
 			System.out.print("(" + node.getId() + ") - ");

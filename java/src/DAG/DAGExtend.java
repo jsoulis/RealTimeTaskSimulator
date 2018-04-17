@@ -10,7 +10,7 @@ import java.util.*;
 public class DAGExtend{
 
 	public static int gen_mode = 2;
-	public static int num_node = 7;
+	public static int num_node = 12;
 	public static int num_edge =(num_node-2)*(num_node-1)/6;
 	public static int group_mode = 2;
 	public static boolean ng_print = false;
@@ -18,7 +18,7 @@ public class DAGExtend{
 
 
 	public static void main(String args[]) {
-
+		parseArgs(args);
 
 		/*stack of Node(s) to hold fork/join ranking info*/
 		Stack<Node> jfNodes = new Stack<Node>();
@@ -28,20 +28,76 @@ public class DAGExtend{
 
 
 		Node topology = Dag.random_generate2(num_node, num_edge);
-		DAGTest t = new DAGTest(num_node);
+		
 
 		drawDag(topology);
 		resetDag(topology);
 
 		ArrayList<ArrayList<Integer>> blocks = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Integer>> naive = new ArrayList<ArrayList<Integer>>();
+		
+		
+		
 
 		arrangeByPrecCons(topology, blocks);
-
+		naive = buildNaive(blocks);
+		
 		System.out.println();
 
 		printBlocks(blocks);
-
-
+		System.out.println();
+		printBlocks(naive);
+		
+		System.out.println();
+		
+		NodeGroup blockedNodeGroup = transformToNodeGroup(blocks);
+		NodeGroup naiveNodeGroup = transformToNodeGroup(naive);
+		//Dag.DrawNodeGroup(blockedNodeGroup);
+		System.out.println();
+		
+		
+		double td = 0;
+		double tn = 0;
+		double d = 0;
+		double n = 0;
+		int seed = 0;
+		int validTaskCount = 0;
+		
+		double tempNaive = 0.0;
+		double tempBlock = 0.0;
+		
+		DAGTest t = new DAGTest(num_node);
+		
+		//ArrayList<ArrayList<Integer>> blockedNodeGroupTrans = trans_dag(blockedNodeGroup);
+		//ArrayList<ArrayList<Integer>> naiveNodeGroupTrans = trans_dag(naiveNodeGroup);
+		
+		for(int i = 0; i < 100; i++)
+		{
+			seed = i;
+			
+			tempNaive = t.getDensity(seed, naive);
+			tempBlock = t.getDensity(seed, blocks);
+			
+			//We want to ignore situations in which density goes to infinity, however it is worth visiting later, because it is more proof that our approach is better than naive approach
+			if(tempNaive != Double.POSITIVE_INFINITY && tempBlock != Double.POSITIVE_INFINITY)
+			{
+				d += t.getDensity(seed, blocks);
+				n += t.getDensity(seed, naive);
+				validTaskCount++;
+			}
+			
+		}
+		d = d / validTaskCount++;
+		n = n / validTaskCount++;
+		
+		System.out.println("Heuristsic value");
+		System.out.println(d);
+		
+		System.out.println();
+		
+		System.out.println("Naive value");
+		System.out.println(n);
+		
 
 
 	}
@@ -137,6 +193,44 @@ public class DAGExtend{
 			System.out.println();
 		}
 	}
+	
+	public static ArrayList<ArrayList<Integer>> buildNaive(ArrayList<ArrayList<Integer>> blocks)
+	{
+		ArrayList<ArrayList<Integer>> naive = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> temp = new ArrayList<Integer>();
+		
+		for (int i = 0; i < blocks.size(); i++)
+		{
+			for (int j = 0; j < blocks.get(i).size(); j++)
+			{
+				temp.add(blocks.get(i).get(j));
+			}
+		}
+		
+		for(int k = 0; k < temp.size(); k++)
+		{
+			ArrayList<Integer> seg = new ArrayList<Integer>();
+			seg.add(temp.get(k));
+			naive.add(seg);
+		}
+		
+		
+		
+		return naive;
+	}
+	
+	public static void printNaive(ArrayList<ArrayList<Integer>> naive)
+	{
+		for (int i = 0; i < naive.size(); i++)
+		{
+			for (int j = 0; j < naive.get(i).size(); j++)
+			{
+				System.out.println(naive.get(i).get(j));
+			}
+			
+		}
+		System.out.println();
+	}
 
 	public static void resetDag(Node node)
 	{
@@ -160,6 +254,30 @@ public class DAGExtend{
 			resetDag(nexts.get(i));
 	}
 
+	public static NodeGroup transformToNodeGroup(ArrayList<ArrayList<Integer>> blocks)
+	{
+		NodeGroup nodeGroup = new NodeGroup();
+		NodeGroup nodeGroupStart = nodeGroup;
+		
+		for (int i = 0; i < blocks.size(); i++)
+		{
+			for (int j = 0; j < blocks.get(i).size(); j++)
+			{
+				Node node = new Node(blocks.get(i).get(j));
+				nodeGroupStart.addNode(node);
+			}
+			if(i != blocks.size() - 1)
+			{
+				NodeGroup nextNodeGroup = new NodeGroup();
+				nodeGroupStart.setNext(nextNodeGroup);
+				nodeGroupStart = nodeGroupStart.getNext();
+			}
+			
+		}
+		
+		return nodeGroup;
+	}
+	
 	public static void drawDag(Node node)
 	{
 		ArrayList<Node> nexts = node.getNext();
@@ -238,4 +356,38 @@ public class DAGExtend{
 
 	}
 	*/
+	public static void parseArgs(String args[])
+	{
+		for(int i=0; i<args.length; i=i+2)
+		{
+			switch(args[i])
+			{
+				case "-n":
+					num_node = Integer.parseInt(args[i+1]);
+					break;
+				case "-e":
+					num_edge = Integer.parseInt(args[i+1]);
+					break;
+				case "-g":
+					gen_mode = Integer.parseInt(args[i+1]);
+					break;
+				case "-gr":
+					group_mode = Integer.parseInt(args[i+1]);
+					break;
+				case "-ng":
+					ng_print = true;
+			}
+		}
+
+		if(num_node == 0)
+		{
+			/**** Change Number of Nodes Here ******/
+			num_node = 7;
+			//num_node = ThreadLocalRandom.current().nextInt(5, 20);
+			System.out.print("Random Generate ");
+		}
+		if(num_edge == 0)
+			num_edge = (num_node-2)*(num_node-1)/6;
+
+	}//}}}
 }

@@ -32,7 +32,7 @@ public class DAGTest {
 		Param.Period_MAX = 1000;
 		Param.NumSegments_MIN = numVertex;
 		Param.NumSegments_MAX = numVertex;
-
+		
 	//	PeriodModifier periodModifier = new PeriodModifier(10);
 		TaskGenerator generator = new TaskGenerator();
 

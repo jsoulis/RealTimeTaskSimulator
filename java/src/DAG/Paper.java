@@ -18,7 +18,7 @@ public class Paper{
 		
 		int seed = 0; //takes value 1 to 100;
 		int TEST_RUN_NUMBER = 100;
-		int DAG_RUNS = 100;
+		int DAG_RUNS = 5;
 		double perSeedMin[] = new double[TEST_RUN_NUMBER];
 		double perSeedMax[] = new double[TEST_RUN_NUMBER];
 		double perDAGMin[] = new double[TEST_RUN_NUMBER];
@@ -42,7 +42,7 @@ public class Paper{
 		//ArrayList<NodeGroup> list;
 		//ArrayList<ArrayList<NodeGroup>> lists = new ArrayList<ArrayList<NodeGroup>>();
 		
-		
+	
 		//List<Node> graphs = new ArrayList<Node>();
 		
 
@@ -88,32 +88,32 @@ public class Paper{
 //		 * occurred. 
 //		 **/
 //		
-//		//One DAG topology is created - the starting topology is also drawn
-//		Node topology = Dag.random_generate2(num_node, num_edge); 
-//		Dag.DrawDag(topology);
-//		System.out.println();
-//		
-//		//The serializations are created and stored in a list
-//		ArrayList<NodeGroup> serialList = (Dag.getAllCase2(topology));
-//		//Draw the serializations
-//		DrawSerializations(serialList);
-//		System.out.println();
-//		
-//		for(seed = 1; seed < TEST_RUN_NUMBER + 1; seed++) {
-//			//receive min and max for this particular seed
-//			minMaxAndIds = DensityTest(serialList, seed);
-//			System.out.println("MinID/Min: " + minMaxAndIds[0] + " " + minMaxAndIds[1] + "; MaxID/Max: " + minMaxAndIds[2] + " " + minMaxAndIds[3]);
-//			//System.out.println();
-//			
-//			//list densities for this seed on all the serializations, with serialization id
-////			densities = DensityCapture(serialList, seed);
-////			for(int j = 0; j <serialList.size(); j++) {
-////				System.out.println(j + " " + densities.get(j));
-////			}
-////			System.out.println();
-//			
-//		}
-//		
+		//One DAG topology is created - the starting topology is also drawn
+		Node topology = Dag.random_generate2(num_node, num_edge); 
+		Dag.DrawDag(topology);
+		System.out.println();
+		
+		//The serializations are created and stored in a list
+		ArrayList<NodeGroup> serialList = (Dag.getAllCase2(topology));
+		//Draw the serializations
+		DrawSerializations(serialList);
+		System.out.println();
+		
+		for(seed = 1; seed < TEST_RUN_NUMBER + 1; seed++) {
+			//receive min and max for this particular seed
+			minMaxAndIds = DensityTest(serialList, seed);
+			System.out.println("MinID/Min: " + minMaxAndIds[0] + " " + minMaxAndIds[1] + "; MaxID/Max: " + minMaxAndIds[2] + " " + minMaxAndIds[3]);
+			//System.out.println();
+			
+			//list densities for this seed on all the serializations, with serialization id
+			densities = DensityCapture(serialList, seed);
+			for(int j = 0; j <serialList.size(); j++) {
+				//System.out.println(j + " " + densities.get(j));
+			}
+			System.out.println();
+		
+		}
+		
 //		/*** End of Test 2 ***/
 		
 		
@@ -254,7 +254,7 @@ public class Paper{
 		 * not just the ones with 2 segments, we then average the min densities for each task and report this as opt value. We then find the next
 		 * group, in this example the next group of topologies will be those that have min number of segments of 3. rinse and repeat.
 		 **/
-		int minSeg = 0;
+		/*int minSeg = 0;
 		double heurDensity = 0.0;
 		double optDensity = 0.0;
 		double optValPerTop[] = new double[DAG_RUNS];
@@ -262,85 +262,86 @@ public class Paper{
 		int heurSegNums[] = new int[DAG_RUNS];
 		double heurValAvgTop[] = new double[5];
 		double optValAvgTop[] = new double[5];
-		for (int i = 0; i < DAG_RUNS; i++) { //100 topologies
-		//One DAG topology is created - the starting topology is also drawn
-			
-			
-		Node topology = Dag.random_generate2(num_node, num_edge); 
-		//Dag.DrawDag(topology);
-		//System.out.println();
-		
-		//The serializations are created and stored in a list
-		ArrayList<NodeGroup> serialList = (Dag.getAllCase2(topology));
-		//Draw the serializations
-		//DrawSerializations(serialList);
-		minSeg = (Dag.MinNumSegments(serialList));
-		heurSegNums[i] = minSeg;
-		
-		//System.out.println();
-		//heurDensity = heurDensityTest(serialList, seed, minSeg);
-		//optDensity = optDensityTest(serialList, seed, minSeg);
-		
-		//minMaxAndIds = DensityTest(serialList, 1);
-		for(seed = 2; seed < TEST_RUN_NUMBER + 1; seed++) {
-			//receive min and max for this particular seed
-			heur = DensityTestTwo(serialList, seed);
-
-			optDensity += heur[1];
-			heurDensity += heur[3];
-			
-			
-			//System.out.println("MinID/Min: " + minMaxAndIds[0] + " " + minMaxAndIds[1] + "; MaxID/Max: " + minMaxAndIds[2] + " " + minMaxAndIds[3]);
+		for (int i = 0; i < DAG_RUNS; i++) 
+		{ 	//100 topologies
+			//One DAG topology is created - the starting topology is also drawn
+				
+				
+			Node topology = Dag.random_generate2(num_node, num_edge); 
+			//Dag.DrawDag(topology);
 			//System.out.println();
 			
-			//list densities for this seed on all the serializations, with serialization id
-//			densities = DensityCapture(serialList, seed);
-//			for(int j = 0; j <serialList.size(); j++) {
-//				System.out.println(j + " " + densities.get(j));
-//			}
-//			System.out.println();
+			//The serializations are created and stored in a list
+			ArrayList<NodeGroup> serialList = (Dag.getAllCase2(topology));
+			//Draw the serializations
+			//DrawSerializations(serialList); 
+			minSeg = (Dag.MinNumSegments(serialList));
+			heurSegNums[i] = minSeg;
 			
-		}
-		optValPerTop[i] = optDensity / TEST_RUN_NUMBER; 
-		heurValPerTop[i] = heurDensity / TEST_RUN_NUMBER;
-		optDensity = 0;
-		heurDensity = 0;
-		System.out.println(heurSegNums[i] + " " + optValPerTop[i] + " " + heurValPerTop[i]);
-		int maxSegNum = 0;
-		for (int j = 0; j < DAG_RUNS; j++)
-		{
-			if(heurSegNums[j] > maxSegNum) {
-				maxSegNum = heurSegNums[j];
-			}
-		}
-		
-		
-		
-		
-		for (int x = 2; x < maxSegNum+1; x++) {
-			double herValAvg = 0.0;
-			double optValAvg = 0.0;
-			int hits = 0;
-			for (int k = 0; k < DAG_RUNS; k++) {
-				if(heurSegNums[k] == x)
-				{
-					hits ++;
-					herValAvg += heurValPerTop[k];
-					optValAvg += optValPerTop[k];
-				}
+			//System.out.println();
+			//heurDensity = heurDensityTest(serialList, seed, minSeg);
+			//optDensity = optDensityTest(serialList, seed, minSeg);
+			
+			//minMaxAndIds = DensityTest(serialList, 1);
+			for(seed = 2; seed < TEST_RUN_NUMBER + 1; seed++) {
+				//receive min and max for this particular seed
+				heur = DensityTestTwo(serialList, seed);
+	
+				optDensity += heur[1];
+				heurDensity += heur[3];
+				
+				
+				//System.out.println("MinID/Min: " + minMaxAndIds[0] + " " + minMaxAndIds[1] + "; MaxID/Max: " + minMaxAndIds[2] + " " + minMaxAndIds[3]);
+				//System.out.println();
+				
+				//list densities for this seed on all the serializations, with serialization id
+	//			densities = DensityCapture(serialList, seed);
+	//			for(int j = 0; j <serialList.size(); j++) {
+	//				System.out.println(j + " " + densities.get(j));
+	//			}
+	//			System.out.println();
 				
 			}
-			if (hits != 0) { 
-				heurValAvgTop[x-2] = herValAvg / hits;
-				optValAvgTop[x-2] = optValAvg / hits;
-			}
-			else {
-				heurValAvgTop[x-2] = 0;
-				optValAvgTop[x-2] = 0;
+			optValPerTop[i] = optDensity / TEST_RUN_NUMBER; 
+			heurValPerTop[i] = heurDensity / TEST_RUN_NUMBER;
+			optDensity = 0;
+			heurDensity = 0;
+			System.out.println(heurSegNums[i] + " " + optValPerTop[i] + " " + heurValPerTop[i]);
+			int maxSegNum = 0;
+			for (int j = 0; j < DAG_RUNS; j++)
+			{
+				if(heurSegNums[j] > maxSegNum) {
+					maxSegNum = heurSegNums[j];
+				}
 			}
 			
 			
-		}
+			
+			
+			for (int x = 2; x < maxSegNum+1; x++) {
+				double herValAvg = 0.0;
+				double optValAvg = 0.0;
+				int hits = 0;
+				for (int k = 0; k < DAG_RUNS; k++) {
+					if(heurSegNums[k] == x)
+					{
+						hits ++;
+						herValAvg += heurValPerTop[k];
+						optValAvg += optValPerTop[k];
+					}
+					
+				}
+				if (hits != 0) { 
+					heurValAvgTop[x-2] = herValAvg / hits;
+					optValAvgTop[x-2] = optValAvg / hits;
+				}
+				else {
+					heurValAvgTop[x-2] = 0;
+					optValAvgTop[x-2] = 0;
+				}
+				
+				
+			}
 	}
 		for (int i = 0; i < 5; i++)
 		{
@@ -351,7 +352,7 @@ public class Paper{
 		{
 			System.out.println(heurValAvgTop[i]);
 		}
-		
+		*/
 		/*** End of Test 6 ***/
 			
 			//graph[0] = Dag.random_generate2(num_node, num_edge);
