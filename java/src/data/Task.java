@@ -24,7 +24,7 @@ public class Task implements Cloneable{
 	private int omax;
 	private int kmin;
 	private int kmax;
-	
+
 	public SegmentList[] segments;
 	
 	public ArrayList<OptionDeadline> optionDeadline;
@@ -331,7 +331,7 @@ public class Task implements Cloneable{
 		// t is relative to task
 		public double getDesityAt(double[] density, double t, int[] interDeadlines)
 		{
-			double[] densityK = new double[getNumSegments()]; // 각 segment들의...
+			double[] densityK = new double[getNumSegments()];
 			double result;
 			int currentT = 0;
 			result = densityK[0];
@@ -358,7 +358,7 @@ public class Task implements Cloneable{
 		
 		public double getDesityWithOffsetAtT(int[] selectedOptions, double[] selectedIntermediateDeadlines, double offset, double t)
 		{
-			double[] densityK = null; // 각 segment들의...
+			double[] densityK = null;
 			double densityAtT;
 			double currentT = 0.0;
 			double repeatedT = t % this.period;

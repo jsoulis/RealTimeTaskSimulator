@@ -137,6 +137,8 @@ public class RTAS {
 		private ArrayList<DeadlineDensitySnippet> optimalSnippets;
 		private double deadline;
 		private double optimalDensity;
+
+		//constructor
 		public TaskSnippets(Task task)
 		{			
 			this.deadline = task.getDeadline();
@@ -282,7 +284,7 @@ public class RTAS {
 	{
 		if (getNumSchedulableTasks(taskSet) == taskSet.size()) 
 			return true;
-		return false;	
+		return false;	 
 	}
 	
 	public static boolean isSchedulable(TaskSetPool taskPool)

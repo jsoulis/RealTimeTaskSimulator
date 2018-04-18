@@ -10,7 +10,7 @@ import java.util.*;
 public class DAGExtend{
 
 	public static int gen_mode = 2;
-	public static int num_node = 12;
+	public static int num_node = 10;
 	public static int num_edge =(num_node-2)*(num_node-1)/6;
 	public static int group_mode = 2;
 	public static boolean ng_print = false;

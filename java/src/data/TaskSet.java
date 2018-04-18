@@ -13,7 +13,7 @@ public class TaskSet implements Cloneable {
 		BEST_EFFORT,
 		SELECTED,
 	}
-	
+
 	protected ArrayList<Task> listTasks = new ArrayList<Task>();
 	
 	protected double alpha; // parallelization overhead
