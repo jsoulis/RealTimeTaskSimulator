@@ -19,3 +19,4 @@ build/core.*
 # OS generated
 .DS_Store
 Thumbs.db
+/bin/

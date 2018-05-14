@@ -1,6 +1,6 @@
 package DAG;
 
-import multicore_exp.DAGTest;
+import multicore_exp.DAGTest_Extension;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,18 +10,16 @@ import java.util.*;
 public class DAGExtend{
 
 	public static int gen_mode = 2;
-	public static int num_node = 10;
+	public static int num_node = 7;
 	public static int num_edge =(num_node-2)*(num_node-1)/6;
 	public static int group_mode = 2;
 	public static boolean ng_print = false;
 	public static int NUM_CORES = 1;
+	public static int DAG_TEST_RUNS = 1000;
 
 
 	public static void main(String args[]) {
 		parseArgs(args);
-
-		/*stack of Node(s) to hold fork/join ranking info*/
-		Stack<Node> jfNodes = new Stack<Node>();
 
 		ArrayList<Integer> test = new ArrayList<Integer>();
 
@@ -50,8 +48,6 @@ public class DAGExtend{
 		
 		System.out.println();
 		
-		NodeGroup blockedNodeGroup = transformToNodeGroup(blocks);
-		NodeGroup naiveNodeGroup = transformToNodeGroup(naive);
 		//Dag.DrawNodeGroup(blockedNodeGroup);
 		System.out.println();
 		
@@ -66,10 +62,7 @@ public class DAGExtend{
 		double tempNaive = 0.0;
 		double tempBlock = 0.0;
 		
-		DAGTest t = new DAGTest(num_node);
-		
-		//ArrayList<ArrayList<Integer>> blockedNodeGroupTrans = trans_dag(blockedNodeGroup);
-		//ArrayList<ArrayList<Integer>> naiveNodeGroupTrans = trans_dag(naiveNodeGroup);
+		DAGTest_Extension t = new DAGTest_Extension(num_node);
 		
 		for(int i = 0; i < 100; i++)
 		{
@@ -90,16 +83,110 @@ public class DAGExtend{
 		d = d / validTaskCount++;
 		n = n / validTaskCount++;
 		
-		System.out.println("Heuristsic value");
+		/*
+		System.out.println("Heuristic value");
 		System.out.println(d);
 		
 		System.out.println();
 		
 		System.out.println("Naive value");
 		System.out.println(n);
+		*/
 		
-
-
+		/**
+		 * Experiment 1 - comparison of optimal solution with heuristic values of new solution.
+		 * 
+		 * I am going to generate a bunch of different DAG topologies. Then I am going to keep track of how many segments there are (blocks.size()). I will then get an average
+		 * of density for all different categories (a category being a particular size of blocks.size()).
+		 * **/
+		
+		int numOfSegs = 0;
+		double density = 0.0;
+		double results[] = {0, 0, 0, 0, 0, 0};
+		double finalResults[] = {0, 0, 0, 0, 0, 0};
+		int count[] = {0, 0, 0, 0, 0, 0};
+		int runs[] = {0, 0, 0, 0, 0, 0};
+		
+		for (int i = 0; i < DAG_TEST_RUNS; i++)
+		{
+			ArrayList<ArrayList<Integer>> blocksExp1 = new ArrayList<ArrayList<Integer>>();
+			Node topologyExp1 = Dag.random_generate2(num_node, num_edge);
+			arrangeByPrecCons(topologyExp1, blocksExp1);
+			numOfSegs = blocksExp1.size();
+			
+			for(int j = 0; j < 100; j++)
+			{
+				seed = j;
+				
+				tempBlock = t.getDensity(seed, blocksExp1);
+				
+				//We want to ignore situations in which density goes to infinity
+				if(tempBlock != Double.POSITIVE_INFINITY)
+				{
+					density = tempBlock;
+					if(numOfSegs == 2)
+					{
+						results[0] += density;
+						count[0]++;
+					}
+					if(numOfSegs == 3)
+					{
+						results[1] += density;
+						count[1]++;
+					}
+					if(numOfSegs == 4)
+					{
+						results[2] += density;
+						count[2]++;
+					}
+					if(numOfSegs == 5)
+					{
+						results[3] += density;
+						count[3]++;
+					}
+					if(numOfSegs == 6)
+					{
+						results[4] += density;
+						count[4]++;
+					}
+					if(numOfSegs == 7)
+					{
+						results[5] += density;
+						count[5]++;
+					}
+				}
+				
+			}
+			
+			for(int x = 0; x < 6; x++)
+			{
+				if(count[x] != 0)
+				{
+					finalResults[x] += results[x] / count[x];
+					runs[x]++;
+				}
+			}
+			
+			for(int k=0; k<6; k++)
+			{
+				results[k] = 0;
+				count[k] = 0;
+			}
+			
+			
+		}
+		
+		for(int x = 0; x < 6; x++)
+		{
+			finalResults[x] = finalResults[x] / runs[x];
+		}
+		
+		for(int x = 0; x < 6; x++)
+		{
+			System.out.println("numSeg = " + (x+2) + ": " + finalResults[x]);
+		}
+		
+		
 	}
 
  //hello again 
