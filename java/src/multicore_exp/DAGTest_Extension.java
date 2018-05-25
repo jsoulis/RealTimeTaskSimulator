@@ -2,6 +2,7 @@ package multicore_exp;
 
 import java.util.ArrayList;
 
+import DAG.DAGExtend.SmartNode;
 import data.Task;
 import data.TaskSet;
 import generator.TaskGenerator;
@@ -85,6 +86,56 @@ public class DAGTest_Extension {
 		return logic.RTAS.getPeakDensity(mergedTaskSet);		
 		//return logic.NBG.getPeakDensity(mergedTaskSet, logic.NBG.Type.SINGLE);
 		//return logic.NBG.getPeakDensity(mergedTaskSet, logic.NBG.Type.MAX);
+	}
+	
+	public double getFlexDensity(int seed, ArrayList<ArrayList<Integer>> blocks, ArrayList<SmartNode> smartnodes)
+	{
+		
+		int sum = 0;
+		for(int i = 0; i<blocks.size(); i++)
+		{
+			for(int j = 0; j<blocks.get(i).size(); j++)
+			{
+				sum++;
+			}
+		}
+		
+		
+		/*********************/
+		Param.NumProcessors = 8;
+		Param.NumThreads_MAX = 8;
+		/*********************/
+		int numVertex = sum;
+		Param.scmin = 10;
+		Param.scmax = 1000;
+		Param.Period_MIN = 200;
+		Param.Period_MAX = 1000;
+		Param.NumSegments_MIN = numVertex;
+		Param.NumSegments_MAX = numVertex;
+		
+		TaskGenerator generator = new TaskGenerator();
+		generator.setRandomBeta(0.3, 2);
+		generator.setFixedGamma(1.0);
+		generator.setRandomAlpha(0, 0.5);
+		generator.setFixedTaskNum(1);
+		
+		
+		TaskSet taskSet = generator.GenerateTaskSet(seed, seed);
+		Task task = taskSet.get(0);
+		
+		ArrayList<ArrayList<Double>> densityGraphs = new ArrayList<ArrayList<Double>>();
+		densityGraphs = createApproximateDensityGraphs(task);
+		
+		ArrayList<ArrayList<ArrayList<Double>>> organizedGraphs = new ArrayList<ArrayList<ArrayList<Double>>>();
+		organizedGraphs = organizeDensityGraphs(densityGraphs, blocks);
+		
+		//
+		
+		double result = 0.0;
+		
+		
+		
+		return result;
 	}
 	
 	public double getPeakDensity(int seed, ArrayList<ArrayList<Integer>> blocks)

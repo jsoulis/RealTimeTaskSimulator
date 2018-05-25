@@ -10,7 +10,7 @@ import java.util.*;
 public class DAGExtend{
 
 	public static int gen_mode = 2;
-	public static int num_node = 24;
+	public static int num_node = 6;
 	public static int num_edge =(num_node-2)*(num_node-1)/6;
 	public static int group_mode = 2;
 	public static boolean ng_print = false;
@@ -31,11 +31,8 @@ public class DAGExtend{
 
 		drawDag(topology);
 		resetDag(topology);
-
 		
 		
-		
-
 		System.out.println("Test New Code");
 		System.out.println();
 		
@@ -44,6 +41,10 @@ public class DAGExtend{
 		
 		arrangeByPrecCons(topology, blocks);
 		naive = buildNaive(blocks);
+		
+		ArrayList<SmartNode> smartNodes = new ArrayList<SmartNode>();
+		smartNodes = buildSmartNodeList(topology, blocks);
+		printSmartNodes(smartNodes);
 		
 		DAGTest_Extension t = new DAGTest_Extension(num_node);
 		
@@ -67,7 +68,7 @@ public class DAGExtend{
 		
 		System.out.println();
 
-		//printBlocks(blocks);
+		printBlocks(blocks);
 		System.out.println();
 		//printBlocks(naive);
 		
@@ -223,6 +224,45 @@ public class DAGExtend{
 	 * given that its predecessors have already been executed.
 	 *
 	 * */
+	
+	public static class SmartNode 
+	{
+		int id;
+		int freedom = -1;
+		
+		public SmartNode(int input_id, int input_freedom)
+		{
+			id = input_id;
+			freedom = input_freedom;
+		}
+		
+		public SmartNode()
+		{
+			id = -1;
+			freedom = -1;
+		}
+		
+		public int getId()
+		{
+			return id;
+		}
+		
+		public int getFreedom()
+		{
+			return freedom;
+		}
+		
+		public void setId(int s_id)
+		{
+			id = s_id; 
+		}
+		
+		public void setFreedom(int s_freedom)
+		{
+			freedom = s_freedom;
+		}
+	}
+	
 	public static void arrangeByPrecCons(Node node, ArrayList<ArrayList<Integer>> blocks)
 	{
 
@@ -253,6 +293,68 @@ public class DAGExtend{
 			return true;
 		}
 		else return false;
+	}
+	
+	public static ArrayList<SmartNode> buildSmartNodeList(Node node, ArrayList<ArrayList<Integer>> blocks)
+	{
+		resetDag(node);
+		ArrayList<SmartNode> result = new ArrayList<SmartNode>();
+		
+		SmartNode sn;
+		
+		Queue<Node> q = new LinkedList<Node>();
+		q.add(node);
+		
+		while(!q.isEmpty()) {
+			Node target = q.remove();
+			
+			sn = new SmartNode();
+			sn.setId(target.getId());
+			if(target.getNext().size() > 0)
+			{
+				sn.setFreedom(0);
+			}
+			result.add(sn);
+			ArrayList<Node> nexts = target.getNext();
+			for(int k = 0; k < nexts.size(); k++)
+			{
+				Node next = nexts.get(k);
+				if(next.visit!=true) {
+					next.visit = true;
+					q.add(next);
+				}
+			}
+		}
+		
+		for(int sn_index = 0; sn_index < result.size(); sn_index++)
+		{
+			if(result.get(sn_index).getFreedom() != 0)
+			{
+				for(int i = 0; i<blocks.size(); i++)
+				{
+					for(int j = 0; j < blocks.get(i).size(); j++)
+					{
+						if(result.get(sn_index).getId() == blocks.get(i).get(j))
+						{
+							int freedom = blocks.size() - (i + 1);
+							result.get(sn_index).setFreedom(freedom);
+						}
+					}
+				}
+			}
+		}
+		
+		
+		
+		return result;
+	}
+	
+	public static void printSmartNodes(ArrayList<SmartNode> smartnodes)
+	{
+		for(int i = 0; i < smartnodes.size(); i++)
+		{
+			System.out.println("ID:   " + smartnodes.get(i).getId() + "\tfreedom:   " + smartnodes.get(i).getFreedom() );
+		}
 	}
 
 	public static ArrayList<Integer> getBlock(Node node)
