@@ -10,12 +10,13 @@ import java.util.*;
 public class DAGExtend{
 
 	public static int gen_mode = 2;
-	public static int num_node = 7;
+	public static int num_node = 24;
 	public static int num_edge =(num_node-2)*(num_node-1)/6;
 	public static int group_mode = 2;
 	public static boolean ng_print = false;
 	public static int NUM_CORES = 1;
 	public static int DAG_TEST_RUNS = 1000;
+	public static int seed = 28;
 
 
 	public static void main(String args[]) {
@@ -31,20 +32,44 @@ public class DAGExtend{
 		drawDag(topology);
 		resetDag(topology);
 
+		
+		
+		
+
+		System.out.println("Test New Code");
+		System.out.println();
+		
 		ArrayList<ArrayList<Integer>> blocks = new ArrayList<ArrayList<Integer>>();
 		ArrayList<ArrayList<Integer>> naive = new ArrayList<ArrayList<Integer>>();
 		
+		arrangeByPrecCons(topology, blocks);
+		naive = buildNaive(blocks);
+		
+		DAGTest_Extension t = new DAGTest_Extension(num_node);
+		
+		double baseResult = t.getPeakDensity(seed, blocks);
+		double naiveResult = t.getPeakDensity(seed, naive);
+		
+		for(int i = 0; i<100; i++)
+		{
+			System.out.println(t.getPeakDensity(i, naive) + "\t" + t.getPeakDensity(i, blocks) );
+		}
 		
 		
+		System.out.println("n : " + naiveResult );
+		System.out.println("b : " + baseResult );
+		
+		System.out.println();
+		System.out.println("Test New Code");
 
 		arrangeByPrecCons(topology, blocks);
 		naive = buildNaive(blocks);
 		
 		System.out.println();
 
-		printBlocks(blocks);
+		//printBlocks(blocks);
 		System.out.println();
-		printBlocks(naive);
+		//printBlocks(naive);
 		
 		System.out.println();
 		
@@ -62,7 +87,7 @@ public class DAGExtend{
 		double tempNaive = 0.0;
 		double tempBlock = 0.0;
 		
-		DAGTest_Extension t = new DAGTest_Extension(num_node);
+		
 		
 		for(int i = 0; i < 100; i++)
 		{
@@ -83,6 +108,8 @@ public class DAGExtend{
 		d = d / validTaskCount++;
 		n = n / validTaskCount++;
 		
+		
+		
 		/*
 		System.out.println("Heuristic value");
 		System.out.println(d);
@@ -92,7 +119,7 @@ public class DAGExtend{
 		System.out.println("Naive value");
 		System.out.println(n);
 		*/
-		
+		/*
 		/**
 		 * Experiment 1 - comparison of optimal solution with heuristic values of new solution.
 		 * 
@@ -100,6 +127,7 @@ public class DAGExtend{
 		 * of density for all different categories (a category being a particular size of blocks.size()).
 		 * **/
 		
+		/*
 		int numOfSegs = 0;
 		double density = 0.0;
 		double results[] = {0, 0, 0, 0, 0, 0};
@@ -186,7 +214,7 @@ public class DAGExtend{
 			System.out.println("numSeg = " + (x+2) + ": " + finalResults[x]);
 		}
 		
-		
+		*/
 	}
 
  //hello again 

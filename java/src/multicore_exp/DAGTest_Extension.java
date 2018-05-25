@@ -98,13 +98,21 @@ public class DAGTest_Extension {
 		 * in parallel. and we will have a final graph that represents the final DAG structure. WE will then plug in the task deadline to 
 		 * this final graph and the final result will be the opStimal density for that task! This value is saved and then added to all the other values for the segments. 
 		 */
+		int sum = 0;
+		for(int i = 0; i<blocks.size(); i++)
+		{
+			for(int j = 0; j<blocks.get(i).size(); j++)
+			{
+				sum++;
+			}
+		}
 		
 		
 		/*********************/
 		Param.NumProcessors = 8;
 		Param.NumThreads_MAX = 8;
 		/*********************/
-		int numVertex = 7;
+		int numVertex = sum;
 		Param.scmin = 10;
 		Param.scmax = 1000;
 		Param.Period_MIN = 200;
@@ -177,26 +185,34 @@ public class DAGTest_Extension {
 		ArrayList<ArrayList<Double>> densityGraphs = new ArrayList<ArrayList<Double>>();
 		ArrayList<Double> filler; 
 		
-		double densityLow = 0.0;
-		double densityHigh = 0.0;
-		double taskDeadline = 0.0;
 		double shortestDeadline = 0.0;
+		double densityHigh = 0.0;
+		double longestDeadline = 0.0;
+		double densityLow = 0.0;
+		double taskDeadline = 0.0;
+		double taskDeadlineDensity = 0.0;
+		
 	
 		for (int i = 0; i < task.getNumSegments(); i++)
 		{
 			shortestDeadline = task.getMaxExecutionTimeOfSegment(i, 7);
 			//System.out.println(shortestDeadline);
-			densityHigh = task.getTotalExecutionTimeOfSegment(i, 7) / shortestDeadline;
+			//densityHigh = task.getTotalExecutionTimeOfSegment(i, 7) / shortestDeadline;
+			densityHigh = task.getTotalExecutionTime(i, 7) / shortestDeadline;
 			//System.out.println(densityHigh);
 			//System.out.println("why is densityHigh always teh same value of 8");
 			taskDeadline = task.getDeadline();
-			densityLow = task.getTotalExecutionTimeOfSegment(i, 0) / taskDeadline;
+			taskDeadlineDensity = task.getTotalExecutionTime(i, 0) / taskDeadline;
+			longestDeadline = task.getTotalExecutionTimeOfSegment(i, 0);
+			densityLow = task.getTotalExecutionTimeOfSegment(i, 0) / longestDeadline;
 			
 			filler = new ArrayList<Double>();
 			filler.add(shortestDeadline);
 			filler.add(densityHigh);
-			filler.add(taskDeadline);
+			filler.add(longestDeadline);
 			filler.add(densityLow);
+			filler.add(taskDeadline);
+			filler.add(taskDeadlineDensity);
 			
 			densityGraphs.add(filler);
 		}
@@ -209,15 +225,13 @@ public class DAGTest_Extension {
 	public ArrayList<Double> sumVertically(ArrayList<Double> graph_one, ArrayList<Double> graph_two)
 	{
 		ArrayList<Double> sum = new ArrayList<Double>();
-		sum.add(0.0);
-		sum.add(0.0);
-		sum.add(0.0);
-		sum.add(0.0);
 		
 		double X1 = 0.0;
 		double Y1 = 0.0;
 		double X2 = 0.0;
 		double Y2 = 0.0;
+		double X3 = 0.0;
+		double Y3 = 0.0;
 		
 		//left x and y value of graph
 		if(graph_one.get(0) > graph_two.get(0))
@@ -236,29 +250,46 @@ public class DAGTest_Extension {
 			Y1 = graph_one.get(1) + graph_two.get(1);
 		}
 		
-		
-		//right x and y value of graph 
+		//middle x and y value of graph
 		if(graph_one.get(2) > graph_two.get(2))
-		{
-			X2 = graph_two.get(2);
-			Y2 = graph_two.get(3) + getYValueFromGraph(graph_one, X2);
-		}
-		else if(graph_one.get(2) < graph_two.get(2))
 		{
 			X2 = graph_one.get(2);
 			Y2 = graph_one.get(3) + getYValueFromGraph(graph_two, X2);
 		}
-		else 
+		else if(graph_one.get(2) < graph_two.get(2))
+		{
+			X2 = graph_two.get(2);
+			Y2 = graph_two.get(3) + getYValueFromGraph(graph_one, X2);
+		}
+		else
 		{
 			X2 = graph_one.get(2);
 			Y2 = graph_one.get(3) + graph_two.get(3);
 		}
 		
+		//right x and y value of graph
+		if(graph_one.get(4) > graph_two.get(4))
+		{
+			X3 = graph_two.get(4);
+			Y3 = graph_two.get(5) + getYValueFromGraph(graph_one, X3);
+		}
+		else if(graph_one.get(4) < graph_two.get(4))
+		{
+			X3 = graph_one.get(4);
+			Y3 = graph_one.get(5) + getYValueFromGraph(graph_two, X3);
+		}
+		else
+		{
+			X3 = graph_one.get(4);
+			Y3 = graph_one.get(5) + graph_two.get(5);
+		}
 		
-		sum.set(0, X1);
-		sum.set(1, Y1);
-		sum.set(2, X2);
-		sum.set(3, Y2);
+		sum.add(X1);
+		sum.add(Y1);
+		sum.add(X2);
+		sum.add(Y2);
+		sum.add(X3);
+		sum.add(Y3);
 		
 		return sum;
 	}
@@ -316,8 +347,40 @@ public class DAGTest_Extension {
 	{
 		double result = 0.0;
 		double slope = 0.0;
-		slope = ((graph.get(3) - graph.get(1)) / (graph.get(2) - graph.get(0)));
-		result = slope*deadline - slope*graph.get(0) + graph.get(1);
+		
+		if(deadline <= graph.get(2))
+		{
+			slope = ((graph.get(3) - graph.get(1)) / (graph.get(2) - graph.get(0)));
+			result = slope*deadline - slope*graph.get(0) + graph.get(1);
+		}
+		
+		else
+		{
+			slope = ((graph.get(5) - graph.get(3)) / (graph.get(4) - graph.get(2)));
+			result = slope*deadline - slope*graph.get(2) + graph.get(3);
+		}
+		
+		return result;
+		
+	}
+	
+	public double getXValueFromGraph(ArrayList<Double> graph, double density)
+	{
+		double result = 0.0;
+		double slope = 0.0;
+		
+		if(density >= 1)
+		{
+			slope = ((graph.get(3) - graph.get(1)) / (graph.get(2) - graph.get(0)));
+			result = (density + slope*graph.get(0) - graph.get(1)) / slope;
+		}
+		
+		else
+		{
+			slope = ((graph.get(5) - graph.get(3)) / (graph.get(4) - graph.get(2)));
+			result = (density + slope*graph.get(2) - graph.get(3)) / slope;
+		}
+		
 		return result;
 	}
 	
@@ -329,6 +392,8 @@ public class DAGTest_Extension {
 		inverseGraph.add(graph.get(0));
 		inverseGraph.add(graph.get(3));
 		inverseGraph.add(graph.get(2));
+		inverseGraph.add(graph.get(5));
+		inverseGraph.add(graph.get(4));
 		
 		return inverseGraph;
 	}
@@ -341,7 +406,7 @@ public class DAGTest_Extension {
 		Param.NumProcessors = 8;
 		Param.NumThreads_MAX = 8;
 		/*********************/
-		int numVertex = 7;
+		int numVertex = 3;
 		Param.scmin = 10;
 		Param.scmax = 1000;
 		Param.Period_MIN = 200;
@@ -355,7 +420,7 @@ public class DAGTest_Extension {
 		generator.setRandomAlpha(0, 0.5);
 		generator.setFixedTaskNum(1);
 		
-		int seed = 10;
+		int seed = 28;
 		TaskSet taskSet = generator.GenerateTaskSet(seed, seed);
 		Task task = taskSet.get(0);
 		
@@ -380,32 +445,67 @@ public class DAGTest_Extension {
 		
 		DAGTest_Extension t = new DAGTest_Extension(numVertex);
 		System.out.println("hello");
-		ArrayList<Double> graph_one = new ArrayList<Double>();
-		ArrayList<Double> graph_two = new ArrayList<Double>();
-		graph_one.add(0.0);
-		graph_one.add(1.0);
-		graph_one.add(3.0);
-		graph_one.add(5.0);
-		
-		graph_two.add(0.0);
-		graph_two.add(0.0);
-		graph_two.add(4.0);
-		graph_two.add(5.0);
-		
-		ArrayList<Double> sum = new ArrayList<Double>();
-		
-		sum = t.sumHorizontally(graph_one, graph_two);
-		
-		for (int i = 0; i < sum.size(); i++)
-		{
-			System.out.println(sum.get(i));
-		}
-		
+
 		ArrayList<ArrayList<Double>> densityGraphs = new ArrayList<ArrayList<Double>>();
 		densityGraphs = t.createApproximateDensityGraphs(task);
 		
 		System.out.println(densityGraphs);
 		
+		System.out.println(t.getYValueFromGraph(densityGraphs.get(0), 1112));
+		System.out.println(t.getXValueFromGraph(densityGraphs.get(0), 0.38383838383838387 ));
+		
+		System.out.println(t.sumVertically(densityGraphs.get(0), densityGraphs.get(1)));
+		System.out.println(t.sumVertically(densityGraphs.get(1), densityGraphs.get(0)));
+		System.out.println(t.sumHorizontally(densityGraphs.get(0), densityGraphs.get(1)));
+		
+		System.out.println("After new implementation");
+		ArrayList<ArrayList<Integer>> blocks3 = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> blockZ = new ArrayList<Integer>();
+		ArrayList<Integer> blockZZ = new ArrayList<Integer>();
+		blockZ.add(1);
+		blockZZ.add(1);
+		blockZZ.add(1);
+		blocks3.add(blockZ);
+		blocks3.add(blockZZ);
+		
+		ArrayList<ArrayList<Integer>> blocks2 = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> blockA = new ArrayList<Integer>();
+		ArrayList<Integer> blockB = new ArrayList<Integer>();
+		ArrayList<Integer> blockC = new ArrayList<Integer>();
+		ArrayList<Integer> blockD = new ArrayList<Integer>();
+		ArrayList<Integer> blockE = new ArrayList<Integer>();
+		ArrayList<Integer> blockF = new ArrayList<Integer>();
+		ArrayList<Integer> blockG = new ArrayList<Integer>();
+		
+		blockA.add(1);
+		blockB.add(2);
+		blockC.add(3);
+		blockD.add(4);
+		blockE.add(5);
+		blockF.add(6);
+		blockG.add(7);
+		
+		blocks2.add(blockA);
+		blocks2.add(blockB);
+		blocks2.add(blockC);
+		
+		double naiveKap = 0.0;
+		double baseKap = 0.0;
+		
+		for(int i = 0; i<100; i++)
+		{
+			baseKap += t.getPeakDensity(i, blocks3);
+			naiveKap += t.getPeakDensity(i, blocks2);
+			System.out.println(t.getPeakDensity(i, blocks3) + " : " + t.getPeakDensity(i, blocks2) );
+		}
+		
+		baseKap /= 100;
+		naiveKap /= 100;
+		
+		System.out.println("Base Value:\t" + baseKap );
+		System.out.println("Naive Value:\t" + naiveKap );
+		
+		/*
 		ArrayList<Double> sumGraphs = new ArrayList<Double>();
 		
 		//code to sum entire task up horizontally
@@ -443,14 +543,11 @@ public class DAGTest_Extension {
 		ArrayList<Integer> block2 = new ArrayList<Integer>();
 		ArrayList<Integer> block3 = new ArrayList<Integer>();
 		ArrayList<Integer> block4 = new ArrayList<Integer>();
-		block1.add(1);
 		block2.add(3);
 		block2.add(4);
 		block2.add(5);
-		block3.add(6);
-		blocks.add(block1);
 		blocks.add(block2);
-		blocks.add(block3);
+
 		
 		
 		
@@ -474,42 +571,94 @@ public class DAGTest_Extension {
 		blocks2.add(blockA);
 		blocks2.add(blockB);
 		blocks2.add(blockC);
-		blocks2.add(blockD);
-		blocks2.add(blockE);
-		blocks2.add(blockF);
-		blocks2.add(blockG);
-		
 		
 		ArrayList<ArrayList<Integer>> blocks3 = new ArrayList<ArrayList<Integer>>();
 		ArrayList<Integer> blockZ = new ArrayList<Integer>();
+		ArrayList<Integer> blockZZ = new ArrayList<Integer>();
 		blockZ.add(1);
-		blockZ.add(1);
-		blockZ.add(1);
-		blockZ.add(1);
-		blockZ.add(1);
-		blockZ.add(1);
-		blockZ.add(1);
+		blockZZ.add(1);
+		blockZZ.add(1);
 		blocks3.add(blockZ);
+		blocks3.add(blockZZ);
 		
-		
-		organizedDensityGraphs = t.organizeDensityGraphs(densityGraphs, blocks);
+		System.out.println("Test");
+		organizedDensityGraphs = t.organizeDensityGraphs(densityGraphs, blocks3);
 		System.out.println(organizedDensityGraphs);
 		
-		
+		*/
 		//These tests prove that getPeakDensity function is working properly.... *sigh*
+		/*
 		ArrayList<Double> temp = t.sumVerticalColumn(organizedDensityGraphs.get(1));
 		System.out.println(temp);
 		System.out.println(t.getYValueFromGraph(temp, task.getDeadline()));
 		ArrayList<Double> temp2 = t.sumHorizontally(organizedDensityGraphs.get(0).get(0), temp);
+		System.out.println(temp2);
 		System.out.println(t.getYValueFromGraph(temp2, task.getDeadline()));
 		ArrayList<Double> temp3 = t.sumHorizontally(organizedDensityGraphs.get(2).get(0), temp2);
 		System.out.println(t.getYValueFromGraph(temp3, task.getDeadline()));
+		*/
+		/*
+		System.out.println("calc: " + t.getYValueFromGraph(organizedDensityGraphs.get(0).get(0), 218.7));
+		System.out.println("calc: " + t.getYValueFromGraph(organizedDensityGraphs.get(1).get(0), 218.7));
+		System.out.println("calc: " + t.getYValueFromGraph(organizedDensityGraphs.get(1).get(1), 218.7));
 		
 		
-		System.out.println(t.getPeakDensity(seed, blocks));
-		System.out.println(t.getPeakDensity(seed, blocks2));
+		double parallelAvg = 0.0;
+		double naiveAvg = 0.0;
+		double baseAvg = 0.0;
+		
+
+		parallelAvg += t.getPeakDensity(seed, blocks);
+		naiveAvg += t.getPeakDensity(seed, blocks2);
+		baseAvg += t.getPeakDensity(seed, blocks3);
+
+		
+		
+		System.out.println("All in parallel:" + parallelAvg);
+		System.out.println("Naive case: " + naiveAvg);
+		System.out.println("Base Case: " + baseAvg);
+		
+		System.out.println();
+		System.out.println("Extra Tests");
+		System.out.println();
+		
+		System.out.println(t.sumVertically(organizedDensityGraphs.get(1).get(0), organizedDensityGraphs.get(1).get(1)));
+		ArrayList<Double> finalSum = t.sumHorizontally(organizedDensityGraphs.get(0).get(0), t.sumVertically(organizedDensityGraphs.get(1).get(0), organizedDensityGraphs.get(1).get(1)));
+		System.out.println(finalSum);
+		System.out.println(t.getYValueFromGraph(finalSum, 27));
+		System.out.println(t.getYValueFromGraph(finalSum, 1188));
+		ArrayList<Double> naiveFinal = new ArrayList<Double>();
+		naiveFinal = t.sumHorizontally(t.sumHorizontally(organizedDensityGraphs.get(0).get(0), organizedDensityGraphs.get(1).get(0)), organizedDensityGraphs.get(1).get(1));
+		System.out.println(naiveFinal);
+		System.out.println(t.getYValueFromGraph(naiveFinal, 1188));
 		System.out.println(t.getPeakDensity(seed, blocks3));
+		System.out.println(t.getPeakDensity(seed, blocks2));
+		System.out.println(t.getXValueFromGraph(organizedDensityGraphs.get(0).get(0),6.26020447278316));
+		System.out.println(t.getXValueFromGraph(organizedDensityGraphs.get(1).get(0),6.26020447278316));
+		System.out.println(t.getXValueFromGraph(organizedDensityGraphs.get(1).get(1),6.26020447278316));
+		System.out.println(t.getXValueFromGraph(t.sumVertically(organizedDensityGraphs.get(1).get(0), organizedDensityGraphs.get(1).get(1)),6.26020447278316 ));
+		System.out.println(t.getYValueFromGraph(organizedDensityGraphs.get(1).get(0), 820));
+		System.out.println(t.getYValueFromGraph(organizedDensityGraphs.get(1).get(1), 820));
+		System.out.println(3.509348768747266 + 2.57714091822619);
+		System.out.println(t.getYValueFromGraph(organizedDensityGraphs.get(0).get(0), 368));
 		
+		System.out.println();
+		System.out.println("Naive tests");
+		ArrayList<ArrayList<ArrayList<Double>>> organizedDensityGraphsNaive = new ArrayList<ArrayList<ArrayList<Double>>>();
+		organizedDensityGraphsNaive = t.organizeDensityGraphs(densityGraphs, blocks2);
+		System.out.println(organizedDensityGraphsNaive);
+		System.out.println(t.sumHorizontally(organizedDensityGraphsNaive.get(0).get(0), organizedDensityGraphsNaive.get(1).get(0)));
+		System.out.println(t.sumHorizontally(t.sumHorizontally(organizedDensityGraphsNaive.get(0).get(0), organizedDensityGraphsNaive.get(1).get(0)), organizedDensityGraphsNaive.get(2).get(0)));
+		ArrayList<Double> naiveSolGraph = t.sumHorizontally(t.sumHorizontally(organizedDensityGraphsNaive.get(0).get(0), organizedDensityGraphsNaive.get(1).get(0)), organizedDensityGraphsNaive.get(2).get(0));
+		System.out.println(t.getYValueFromGraph(naiveSolGraph, 1188));
+		System.out.println(t.getXValueFromGraph(organizedDensityGraphsNaive.get(0).get(0), 6.133292793383761));
+		System.out.println(t.getXValueFromGraph(organizedDensityGraphsNaive.get(1).get(0), 6.133292793383761));
+		System.out.println(t.getXValueFromGraph(organizedDensityGraphsNaive.get(2).get(0), 6.133292793383761));
+		
+		System.out.println(task.getTotalExecutionTime(0, 0));
+		System.out.println(task.getTotalExecutionTime(1, 0));
+		System.out.println(task.getTotalExecutionTime(2, 0));
+		*/
 	}
 
 }
